@@ -1,0 +1,55 @@
+Bootstrap: localimage
+From: <container-name>
+
+%runscript
+echo "Run this container using 'run --app <app-name>' syntax"
+echo "Apps in this container are: "
+echo " compile <easyconfig-name>"
+echo " default-run <module-name> <executable-name> [<additional-parameters-for-executable>]"
+
+
+%apprun compile
+# Get name of easyconfig from command line argument
+easyconf=$1
+
+# Exit on no option
+[ -z "$easyconf" ] && { echo "You need to specify the name of the easyconfig"; exit 1; }
+
+printf "Easyconfig %s\n" "$easyconf"
+
+#Pre-build config
+source /opt/apps/lmod/lmod/init/profile
+ml purge
+ml EasyBuild
+
+# Find easyconfig
+if [ -f "/build/$easyconf" ]; then
+    echo "Easyconfig found in mounted /build directory"
+    cd /build
+else    
+    echo "Easyconfig not found in /build, trying in current working directory and online"
+fi
+
+# Invoke easybuild
+eb --robot --force --prefix=/easybuild $easyconf -l
+
+
+%apprun default-run
+module=$1
+binary=$2
+
+[ -z "$binary" ] && { echo "You need to specify [<module name>, <software name>]"; exit 1; }
+
+source /opt/apps/lmod/lmod/init/profile
+ml purge
+ml "$module"
+
+if [ -d /input ]; then
+    echo "Input dir found, running from it"
+    cd /input
+else 
+    echo "Trying to run from current directory"
+fi
+
+echo "Running $binary with these parameters: ${@:3}"
+$binary "${@:3}"

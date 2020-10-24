@@ -1,0 +1,102 @@
+Bootstrap: library
+From: centos:7
+
+%post
+yum --assumeyes --quiet update
+yum --assumeyes --quiet upgrade
+yum --assumeyes --quiet groupinstall "Development Tools"
+yum --assumeyes --quiet install epel-release 
+# MPI support
+yum --assumeyes --quiet install numactl-devel
+
+yum --assumeyes --quiet install which rsync mlocate perf expect perftest symlinks telnet net-tools ipmitool smartmontools wget \
+    openssh-ldap sssd tmux lsof strace psmisc tcsh libffi-devel libfabric time samba libsecret-devel libcap-devel \
+    libxslt docbook-style-xsl nfs-utils.x86_64 nfs4-acl-tools bind-utils tcl tcl-devel python2 python2-devel python3 python3-devel \
+    python2-pip python3-pip rdma-core-devel vim openssl-devel
+
+
+# UCX
+cd /tmp
+wget https://github.com/openucx/ucx/archive/v1.6.1.tar.gz
+tar xvf v1.6.1.tar.gz && cd ucx-1.6.1
+./autogen.sh
+./configure --prefix=/usr/local
+make
+make install
+
+# OpenMPI
+cd /tmp
+wget https://www.open-mpi.org/software/ompi/v3.1/downloads/openmpi-3.1.4.tar.gz
+tar xvf openmpi-3.1.4.tar.gz && cd openmpi-3.1.4
+./configure --prefix=/usr/local --with-ucx=/usr/local
+make
+make install
+
+
+mkdir -p /easybuild
+chmod -R 777 /easybuild
+    
+# ----- LUA ---------------------
+cd /tmp
+
+wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-posix-32-2.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-filesystem-1.6.2-2.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://mirror.centos.org/centos/7/os/x86_64/Packages/lua-devel-5.1.4-15.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-bitop-1.0.2-3.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+rpm -ihv lua-devel-5.1.4-15.el7.x86_64.rpm
+rpm -ihv lua-filesystem-1.6.2-2.el7.x86_64.rpm
+rpm -ihv lua-bitop-1.0.2-3.el7.x86_64.rpm
+rpm -ihv lua-posix-32-2.el7.x86_64.rpm
+
+
+# ----- LMOD --------------------------
+cd /tmp
+wget https://github.com/TACC/Lmod/archive/7.7.7.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+tar xvf 7.7.7.tar.gz
+cd Lmod-7.7.7
+./configure --prefix=/opt/apps
+make install
+
+
+# ---- EasyBuild ----------------------- 
+cd /tmp
+useradd -ms /bin/bash easybuild    
+wget https://raw.githubusercontent.com/easybuilders/easybuild-framework/develop/easybuild/scripts/bootstrap_eb.py --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc    
+su -c 'cd /tmp && export PATH=/opt/apps/lmod/lmod/libexec:$PATH && source /opt/apps/lmod/lmod/init/profile && export LMOD_CMD=/opt/apps/lmod/lmod/libexec/lmod && python3 bootstrap_eb.py /easybuild' easybuild
+
+chmod -R 777 /easybuild 
+
+mkdir /apps
+mkdir /build
+mkdir /scratch
+
+
+
+%environment
+source /opt/apps/lmod/lmod/init/profile
+
+export LMOD_PACKAGE_PATH=/opt/apps/lmod/
+export PATH=/opt/apps/lmod/lmod/libexec:$PATH
+export LMOD_CMD=/opt/apps/lmod/lmod/libexec/lmod
+
+ml use /apps/modules/all
+ml use ~/.local/easybuild/modules/all 
+ml use /easybuild/modules/all
+
+export MODULEPATH
+ml purge
+
+
+
+%test
+source /opt/apps/lmod/lmod/init/profile
+ml
+
+if [ $? -eq 0 ]; then
+    echo "Modules tool is working" && exit 0
+else
+    echo "Modules tool did not install correctly, exiting" && exit 1
+fi
+    
+    
+    

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	echo "Please, provide the source conatiner name"
+	exit 1
+fi
+
+SOURCE_CONTAINER="$1"
+BASENAME="$(basename $SOURCE_CONTAINER .sif)"
+NEW_CONTAINER="$BASENAME-apps.sif"
+NEW_DEF_FILE="$BASENAME-apps.def.tmp"
+
+# make new, custom def file - with corrent container name
+echo "Making new definition file"
+cp "bin/container-apps.def" "$NEW_DEF_FILE"
+sed -i "s/<container-name>/$SOURCE_CONTAINER/g" "$NEW_DEF_FILE"
+
+echo "Building new image with apps included"
+sudo singularity build "$NEW_CONTAINER" "$NEW_DEF_FILE"
+
+echo "Cleaning up"
+rm "$NEW_DEF_FILE"
