@@ -1,0 +1,31 @@
+Bootstrap: library
+From: centos:7
+
+%post
+yum --assumeyes --quiet update
+yum --assumeyes --quiet upgrade
+yum --assumeyes --quiet groupinstall "Development Tools"
+yum --assumeyes --quiet install epel-release 
+yum --assumeyes --quiet install which wget rsync mlocate expect tcl-devel python3 python3-pip python3-devel rdma-core-devel vim nano openssl-devel 
+
+
+
+# GCC-6.3 ===============================================================
+yum --assumeyes --quiet install libmpc-devel mpfr-devel gmp-devel zlib-devel
+cd /tmp
+wget https://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+tar xzf gcc-6.3.0.tar.gz
+cd gcc-6.3.0/
+./configure --with-system-zlib --disable-multilib --enable-languages=c,c++
+make -j 4
+make install
+cd /tmp
+rm -r /tmp/gcc-6.3.0/
+
+
+
+%environment
+PATH=/opt/application/:/opt/application/bin:$PATH
+LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
+
+export PATH LD_LIBRARY_PATH

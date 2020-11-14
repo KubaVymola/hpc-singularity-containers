@@ -20,6 +20,22 @@ make -j 4
 make install
 rm -r /tmp/gcc-9.3.0/
 
+# GCC-6.3
+# yum --assumeyes --quiet install libmpc-devel mpfr-devel gmp-devel zlib-devel
+# cd /tmp
+# wget https://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+# tar xzf gcc-6.3.0.tar.gz
+# cd gcc-6.3.0/
+# ./configure --with-system-zlib --disable-multilib --enable-languages=c,c++
+# make -j 4
+# make install
+# cd /tmp
+# rm -r /tmp/gcc-6.3.0/
+
+# wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda-repo-rhel7-9-0-local-9.0.176-1.x86_64-rpm  --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+# rpm -i cuda-repo-rhel7-9-0-local-9.0.176-1.x86_64.rpm
+# yum clean all
+# yum install cuda
 
 # Libraries for Intel compilers
 cd /tmp

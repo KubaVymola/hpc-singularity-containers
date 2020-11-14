@@ -68,13 +68,13 @@ yum --assumeyes --quiet install intel-mkl-64bit-2019.4-070
 # ----- LUA ---------------------
 cd /tmp
 
-wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-posix-33.3.1-9.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-filesystem-1.6.3-7.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-wget http://mirror.centos.org/centos/7/os/x86_64/Packages/lua-devel-5.3.4-11.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-bitop-1.0.2-5.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://mirror.centos.org/centos/8/PowerTools/x86_64/os/Packages/lua-devel-5.3.4-11.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://mirror.centos.org/centos/8/PowerTools/x86_64/os/Packages/lua-filesystem-1.6.3-7.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/l/lua5.1-bitop-1.0.2-5.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://mirror.centos.org/centos/8/PowerTools/x86_64/os/Packages/lua-posix-33.3.1-9.el8.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
 rpm -ihv lua-devel-5.3.4-11.el8.x86_64.rpm
 rpm -ihv lua-filesystem-1.6.3-7.el8.x86_64.rpm
-rpm -ihv lua-bitop-1.0.2-5.el8.x86_64.rpm
+# rpm -ihv lua5.1-bitop-1.0.2-5.el8.x86_64.rpm
 rpm -ihv lua-posix-33.3.1-9.el8.x86_64.rpm
 
 

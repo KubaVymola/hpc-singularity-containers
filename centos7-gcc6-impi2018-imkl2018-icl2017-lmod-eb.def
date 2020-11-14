@@ -1,69 +1,58 @@
 Bootstrap: library
-From: centos:7
+From: kuba.vymola/default/centos7-gcc6:latest
+
+# Bootstrap: library
+# From: centos:7
 
 %post
-yum --assumeyes --quiet update
-yum --assumeyes --quiet upgrade
-yum --assumeyes --quiet groupinstall "Development Tools"
-yum --assumeyes --quiet install epel-release 
-yum --assumeyes --quiet install which wget rsync mlocate expect tcl-devel python3 python3-pip python3-devel rdma-core-devel vim nano openssl-devel 
+# yum --assumeyes --quiet update
+# yum --assumeyes --quiet upgrade
+# yum --assumeyes --quiet groupinstall "Development Tools"
+# yum --assumeyes --quiet install epel-release 
+# yum --assumeyes --quiet install which wget rsync mlocate expect tcl-devel python3 python3-pip python3-devel rdma-core-devel vim nano openssl-devel 
 
 
-# GCC-9.3
+# # GCC-6.3 ===============================================================
 # yum --assumeyes --quiet install libmpc-devel mpfr-devel gmp-devel zlib-devel
 # cd /tmp
-# wget ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-9.3.0/gcc-9.3.0.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-# tar xzf gcc-9.3.0.tar.gz
-# cd gcc-9.3.0/
+# wget https://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+# tar xzf gcc-6.3.0.tar.gz
+# cd gcc-6.3.0/
 # ./configure --with-system-zlib --disable-multilib --enable-languages=c,c++
 # make -j 4
 # make install
-# rm -r /tmp/gcc-9.3.0/
-
+# cd /tmp
+# rm -r /tmp/gcc-6.3.0/
 
 # Libraries for Intel compilers
 cd /tmp
-wget http://registrationcenter-download.intel.com/akdlm/irc_nas/16744/l_comp_lib_2020.2.254_comp.cpp_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-wget http://registrationcenter-download.intel.com/akdlm/irc_nas/16744/l_comp_lib_2020.2.254_comp.for_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-tar zxf l_comp_lib_2020.2.254_comp.cpp_redist.tgz
-tar zxf l_comp_lib_2020.2.254_comp.for_redist.tgz
-./l_comp_lib_2020.2.254_comp.cpp_redist/install.sh -i /opt/intel -e
-./l_comp_lib_2020.2.254_comp.for_redist/install.sh -i /opt/intel -e
+wget https://software.intel.com/sites/default/files/managed/4e/e4/l_comp_lib_2017.8.262_comp.cpp_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget https://software.intel.com/sites/default/files/managed/0f/e6/l_comp_lib_2017.8.262_comp.for_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+tar zxf l_comp_lib_2017.8.262_comp.cpp_redist.tgz
+tar zxf l_comp_lib_2017.8.262_comp.for_redist.tgz
+./l_comp_lib_2017.8.262_comp.cpp_redist/install.sh -i /opt/intel -e
+./l_comp_lib_2017.8.262_comp.for_redist/install.sh -i /opt/intel -e
 
 
-# intel MPI and MKL
+# intel MPI and MKL ===============================================================
 yum --assumeyes --quiet install yum-cron yum-utils 
 yum-config-manager --add-repo https://yum.repos.intel.com/setup/intelproducts.repo
 rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-yum --assumeyes --quiet install intel-mpi-2018.4-057
-yum --assumeyes --quiet install intel-mkl-64bit-2019.4-070
+yum --assumeyes --quiet install intel-mpi-2018.2-046
+yum --assumeyes --quiet install intel-mkl-64bit-2018.0-033
 
 
-
-
-# OS DEPENDENCIES TAKEN FROM OPENMPI VERSION (CHANGE BACK TO THE OLD ONES ABOVE, IF IT DOES NOT WORK)
-# MPI support
-# yum --assumeyes install numactl-devel
-
-# yum --assumeyes install which rsync mlocate perf expect perftest symlinks telnet net-tools ipmitool smartmontools wget \
-#     openssh-ldap sssd tmux lsof strace psmisc tcsh libffi-devel libfabric time samba libsecret-devel libcap-devel \
-#     libxslt docbook-style-xsl nfs-utils.x86_64 nfs4-acl-tools bind-utils tcl tcl-devel python2 python2-devel python3 python3-devel \
-#     python2-pip python3-pip rdma-core-devel vim openssl-devel
-
-# UCX ????
+# CUDA 9 ===============================================================
 # cd /tmp
-# wget https://github.com/openucx/ucx/archive/v1.6.1.tar.gz
-# tar xvf v1.6.1.tar.gz && cd ucx-1.6.1
-# ./autogen.sh
-# ./configure --prefix=/usr/local
-# make
-# make install
+# wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda-repo-rhel7-9-0-local-9.0.176-1.x86_64-rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+# rpm -i cuda-repo-rhel7-9-0-local-9.0.176-1.x86_64-rpm
+# yum  --assumeyes --quiet clean all
+# # yum  --assumeyes --quiet install cuda
+# yum  --assumeyes --quiet install cuda-runtime-9-0
 
-
-    
+  
 # ----- LUA ---------------------
 cd /tmp
-
 
 wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-posix-32-2.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
 wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/l/lua-filesystem-1.6.2-2.el7.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
@@ -103,20 +92,19 @@ chmod -R 777 /opt/application
 
 %environment
 source /opt/intel/bin/compilervars.sh intel64
-source /opt/intel/compilers_and_libraries_2019.4.243/linux/mkl/bin/mklvars.sh intel64
-source /opt/intel/impi/2018.4.274/bin64/mpivars.sh
+source /opt/intel/compilers_and_libraries_2018.0.128/linux/mkl/bin/mklvars.sh intel64
+source /opt/intel/impi/2018.2.199/bin64/mpivars.sh
 
 source /opt/apps/lmod/lmod/init/profile
 
 LMOD_PACKAGE_PATH=/opt/apps/lmod/
 PATH=/opt/apps/lmod/lmod/libexec:/opt/application/:/opt/application/bin:$PATH
 LMOD_CMD=/opt/apps/lmod/lmod/libexec/lmod
-LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
 
 ml use /apps/modules/all
 ml use ~/.local/easybuild/modules/all 
 ml use /easybuild/modules/all
-
 export MODULEPATH LMOD_PACKAGE_PATH PATH LMOD_CMD LD_LIBRARY_PATH
 ml purge
 
