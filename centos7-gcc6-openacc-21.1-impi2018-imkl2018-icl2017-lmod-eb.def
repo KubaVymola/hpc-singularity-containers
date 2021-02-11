@@ -42,13 +42,12 @@ yum --assumeyes --quiet install intel-mpi-2018.2-046
 yum --assumeyes --quiet install intel-mkl-64bit-2018.0-033
 
 
-# CUDA 9 ===============================================================
-cd /tmp
-wget https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda-repo-rhel7-9-2-local-9.2.148-1.x86_64 --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
-rpm -i cuda-repo-rhel7-9-2-local-9.2.148-1.x86_64
-yum  --assumeyes --quiet clean all
-# yum  --assumeyes --quiet install cuda
-yum  --assumeyes --quiet install cuda-9-2
+# OpenACC 21.1
+wget https://developer.download.nvidia.com/hpc-sdk/21.1/nvhpc-21-1-21.1-1.x86_64.rpm \
+https://developer.download.nvidia.com/hpc-sdk/21.1/nvhpc-2021-21.1-1.x86_64.rpm --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+
+yum --assumeyes --quiet install ./nvhpc-21-1-21.1-1.x86_64.rpm ./nvhpc-2021-21.1-1.x86_64.rpm 
+
 
   
 # ----- LUA ---------------------
