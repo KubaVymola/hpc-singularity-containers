@@ -1,0 +1,47 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/nvhpc:20.9-devel-ubuntu20.04
+
+%environment
+export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:/opt/intel/oneapi/lib/intel64:$LD_LIBRARY_PATH
+export MKLROOT=/opt/intel/oneapi
+export PATH=/opt/bin:/opt/application:/opt/application/bin:$PATH
+
+# %files
+# /home/jakub/It4i/software/vasp/vasp-6.1.1/vasp.6.1.1.tgz                            /opt/vasp.6.1.1.tgz   
+# /home/jakub/It4i/software/vasp/vasp-6.1.1/makefile.include.linux_nv_acc+omp+mkl     /opt/makefile.include
+
+%files
+/home/jakub/It4i/software/intel/fftw    /opt/intel/oneapi/include/fftw
+
+
+%post
+apt -y update && apt -y upgrade
+apt -y install rsync gnupg ca-certificates libmlx5-1
+
+# OneAPI MKL
+# cd /tmp
+# wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17402/l_onemkl_p_2021.1.1.52_offline.sh --no-check-certificate --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+# chmod +x l_onemkl_p_2021.1.1.52_offline.sh
+# ./l_onemkl_p_2021.1.1.52_offline.sh -s -a -s --eula accept
+
+# source /opt/intel/oneapi/setvars.sh
+
+
+# OneAPI runtime MKL (with FFTW include this is enough to build VASP - saves ~8GB)
+cd /tmp
+wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  --no-check-certificate --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list
+apt -y update
+apt -y install intel-oneapi-runtime-mkl
+
+
+
+mkdir /apps
+mkdir /build
+mkdir /scratch
+mkdir -p /opt/application/bin
+
+chmod -R 777 /opt/application
+

@@ -3,18 +3,18 @@ From: nvcr.io/nvidia/nvhpc:20.9-runtime-cuda11.0-ubuntu20.04
 
 
 %environment
-source /opt/intel/oneapi/setvars.sh
-export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:$LD_LIBRARY_PATH
+# source /opt/intel/oneapi/setvars.sh
+export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:/opt/intel/oneapi/lib/intel64:$LD_LIBRARY_PATH
 export PATH=/opt/bin:/opt/application:/opt/application/bin:$PATH
 
 
 %post
 apt -y update && apt -y upgrade
-apt -y install rsync gnupg ca-certificates
+apt -y install rsync gnupg ca-certificates wget libmlx5-1
 
 # OneAPI runtime MKL
 cd /tmp
-wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  --no-check-certificatel --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  --no-check-certificate --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
 apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
