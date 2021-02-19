@@ -4,6 +4,37 @@ From: kuba.vymola/default/centos7-gcc6:latest
 # Bootstrap: library
 # From: centos:7
 
+%environment
+source /opt/intel/bin/compilervars.sh intel64
+source /opt/intel/compilers_and_libraries_2018.0.128/linux/mkl/bin/mklvars.sh intel64
+source /opt/intel/impi/2018.2.199/bin64/mpivars.sh
+
+source /opt/apps/lmod/lmod/init/profile
+
+LMOD_PACKAGE_PATH=/opt/apps/lmod/
+PATH=/opt/apps/lmod/lmod/libexec:/opt/application/:/opt/application/bin:$PATH
+LMOD_CMD=/opt/apps/lmod/lmod/libexec/lmod
+
+#NV HPC SDK
+NVARCH=`uname -s`_`uname -m`; export NVARCH
+NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS
+MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/21.1/compilers/man; export MANPATH
+PATH=$NVCOMPILERS/$NVARCH/21.1/compilers/bin:$PATH; export PATH
+
+#! Nvidia OpenMPI implementation (needed?)
+# export PATH=$NVCOMPILERS/$NVARCH/21.1/comm_libs/mpi/bin:$PATH
+# export MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/21.1/comm_libs/mpi/man
+# export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/21.1/compilers/lib/:$LD_LIBRARY_PATH
+
+# NOT NEEDED LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64:/usr/local/lib64:$LD_LIBRARY_PATH
+
+ml use /apps/modules/all
+ml use ~/.local/easybuild/modules/all 
+ml use /opt/easybuild/modules/all
+export MODULEPATH LMOD_PACKAGE_PATH PATH LMOD_CMD LD_LIBRARY_PATH
+ml purge
+
+
 %post
 # yum --assumeyes --quiet update
 # yum --assumeyes --quiet upgrade
@@ -87,25 +118,6 @@ mkdir -p /opt/application/bin
 
 chmod -R 777 /opt/easybuild 
 chmod -R 777 /opt/application
-
-
-%environment
-source /opt/intel/bin/compilervars.sh intel64
-source /opt/intel/compilers_and_libraries_2018.0.128/linux/mkl/bin/mklvars.sh intel64
-source /opt/intel/impi/2018.2.199/bin64/mpivars.sh
-
-source /opt/apps/lmod/lmod/init/profile
-
-LMOD_PACKAGE_PATH=/opt/apps/lmod/
-PATH=/opt/apps/lmod/lmod/libexec:/opt/application/:/opt/application/bin:$PATH
-LMOD_CMD=/opt/apps/lmod/lmod/libexec/lmod
-LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64:/usr/local/lib64:$LD_LIBRARY_PATH
-
-ml use /apps/modules/all
-ml use ~/.local/easybuild/modules/all 
-ml use /opt/easybuild/modules/all
-export MODULEPATH LMOD_PACKAGE_PATH PATH LMOD_CMD LD_LIBRARY_PATH
-ml purge
 
 
 %test

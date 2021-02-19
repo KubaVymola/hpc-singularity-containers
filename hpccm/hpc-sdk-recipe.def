@@ -1,0 +1,12 @@
+# Build stage
+Stage0 += baseimage(image='nvcr.io/nvidia/nvhpc:20.9-devel-ubuntu20.04', _as='build')
+
+# build VASP
+
+
+
+# Runtime stage
+Stage1 += baseimage(image='nvcr.io/nvidia/nvhpc:20.9-runtime-cuda11.0-ubuntu20.04')
+
+Stage1 += Stage0.runtime()
+Stage1 += environment(variables={'PATH': '/opt/CloverLeaf-OpenACC/bin:$PATH'})

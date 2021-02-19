@@ -1,0 +1,42 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/nvhpc:20.9-devel-ubuntu20.04
+
+%environment
+source /opt/intel/oneapi/setvars.sh
+export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:$LD_LIBRARY_PATH
+
+
+# %files
+# /home/jakub/It4i/software/vasp/vasp-6.1.1/vasp.6.1.1.tgz                            /opt/vasp.6.1.1.tgz   
+# /home/jakub/It4i/software/vasp/vasp-6.1.1/makefile.include.linux_nv_acc+omp+mkl     /opt/makefile.include
+
+
+%post
+apt -y update && apt -y upgrade
+apt -y install rsync gnupg ca-certificates
+
+
+# OneAPI MKL
+cd /tmp
+wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17402/l_onemkl_p_2021.1.1.52_offline.sh --no-check-certificate --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+chmod +x l_onemkl_p_2021.1.1.52_offline.sh
+./l_onemkl_p_2021.1.1.52_offline.sh -s -a -s --eula accept
+
+source /opt/intel/oneapi/setvars.sh
+
+
+mkdir /apps
+mkdir /build
+mkdir /scratch
+mkdir -p /opt/application/bin
+
+chmod -R 777 /opt/application
+
+
+# VASP-6.1.1
+# cd /opt/
+# tar xzf vasp.6.1.1.tgz
+# cp makefile.include vasp.6.1.1/
+# cd vasp.6.1.1/
+# make veryclean
+# make std

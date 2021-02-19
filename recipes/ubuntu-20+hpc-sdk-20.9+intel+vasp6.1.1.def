@@ -1,0 +1,107 @@
+Bootstrap: docker
+From: ubuntu:20.04
+# Stage: compile
+
+%environment
+source /opt/intel/bin/compilervars.sh intel64
+source /opt/intel/compilers_and_libraries_2020.0.166/linux/mkl/bin/mklvars.sh intel64
+source /opt/intel/impi/2019.6.166/intel64/bin/mpivars.sh
+
+NVARCH=`uname -s`_`uname -m`; export NVARCH
+NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS
+MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/compilers/man; export MANPATH
+PATH=$NVCOMPILERS/$NVARCH/20.9/compilers/bin:$PATH; export PATH
+
+export PATH=$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/bin:$PATH
+export MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/man
+export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/lib/:$LD_LIBRARY_PATH
+
+%files
+/home/jakub/It4i/software/vasp/vasp-6.1.1/vasp.6.1.1.tgz                            /opt/vasp.6.1.1.tgz   
+/home/jakub/It4i/software/vasp/vasp-6.1.1/makefile.include.linux_nv_acc+omp+mkl     /opt/makefile.include
+
+
+%post
+apt -y update && apt -y upgrade
+apt install locales
+locale-gen en_US.UTF-8 cs_CZ.UTF-8
+DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+apt -y install curl wget gcc g++ make vim libncurses-dev rsync gfortran ssh libnuma-dev autoconf gnupg
+
+
+# Intel runtime libraries 
+cd /tmp
+wget http://registrationcenter-download.intel.com/akdlm/irc_nas/16744/l_comp_lib_2020.2.254_comp.cpp_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+wget http://registrationcenter-download.intel.com/akdlm/irc_nas/16744/l_comp_lib_2020.2.254_comp.for_redist.tgz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+tar zxf l_comp_lib_2020.2.254_comp.cpp_redist.tgz
+tar zxf l_comp_lib_2020.2.254_comp.for_redist.tgz
+./l_comp_lib_2020.2.254_comp.cpp_redist/install.sh -i /opt/intel -e
+./l_comp_lib_2020.2.254_comp.for_redist/install.sh -i /opt/intel -e
+
+
+# Intel key
+cd /tmp
+wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+
+# IMKL and IMPI
+sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+sh -c 'echo deb https://apt.repos.intel.com/mpi all main > /etc/apt/sources.list.d/intel-mpi.list'
+apt -y update 
+apt -y install intel-mkl-2020.0-088
+apt -y install intel-mpi-2019.6-088
+
+
+# OpenACC 20.9 - TGZ
+cd /tmp
+wget https://developer.download.nvidia.com/hpc-sdk/20.9/nvhpc_2020_209_Linux_x86_64_cuda_11.0.tar.gz --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 -nc
+tar xpzf nvhpc_2020_209_Linux_x86_64_cuda_11.0.tar.gz 
+export NVHPC_INSTALL_DIR=/opt/nvidia/hpc_sdk
+export NVHPC_INSTALL_TYPE=single
+export NVHPC_DEFAULT_CUDA=11.0
+export NVHPC_STDPAR_CUDACC=70
+export NVHPC_SILENT=true
+nvhpc_2020_209_Linux_x86_64_cuda_11.0/install
+
+NVARCH=`uname -s`_`uname -m`; export NVARCH
+NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS
+MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/compilers/man; export MANPATH
+PATH=$NVCOMPILERS/$NVARCH/20.9/compilers/bin:$PATH; export PATH
+
+export PATH=$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/bin:$PATH
+export MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/man
+export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/lib/:$LD_LIBRARY_PATH
+
+
+cd /opt/
+tar xzf vasp.6.1.1.tgz
+cp makefile.include vasp.6.1.1/
+cd vasp.6.1.1/
+make veryclean
+make std ncl gam
+
+
+# Bootstrap: docker
+# From: ubuntu:20.04
+# Stage: final
+
+
+# %files from compile
+# /opt/application/vasp_std
+# /opt/application/vasp_ncl
+# /opt/application/vasp_gam
+
+# %environment
+# source /opt/intel/bin/compilervars.sh intel64
+# source /opt/intel/compilers_and_libraries_2020.0.166/linux/mkl/bin/mklvars.sh intel64
+# source /opt/intel/impi/2019.6.166/intel64/bin/mpivars.sh
+
+# NVARCH=`uname -s`_`uname -m`; export NVARCH
+# NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS
+# MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/compilers/man; export MANPATH
+# PATH=$NVCOMPILERS/$NVARCH/20.9/compilers/bin:$PATH; export PATH
+
+# export PATH=$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/bin:$PATH
+# export MANPATH=$MANPATH:$NVCOMPILERS/$NVARCH/20.9/comm_libs/mpi/man
+# export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/lib/:$LD_LIBRARY_PATH
