@@ -4,13 +4,20 @@ From: nvcr.io/nvidia/nvhpc:20.9-runtime-cuda11.0-ubuntu20.04
 
 %environment
 # source /opt/intel/oneapi/setvars.sh
-export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:/opt/intel/oneapi/lib/intel64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/intel/oneapi/lib/intel64:$LD_LIBRARY_PATH
 export PATH=/opt/bin:/opt/application:/opt/application/bin:$PATH
-
+export OPAL_PKGDATADIR=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/comm_libs/openmpi/openmpi-3.1.5/share/openmpi
 
 %post
 apt -y update && apt -y upgrade
-apt -y install rsync gnupg ca-certificates wget libmlx5-1
+# tzdata BS
+export DEBIAN_FRONTEND=noninteractive
+apt-get install -y tzdata
+ln -fs /usr/share/zoneinfo/Europe/Prague /etc/localtime
+dpkg-reconfigure --frontend noninteractive tzdata
+# rest of packages
+apt -y install rsync gnupg ca-certificates wget libmlx5-1 libdapl2 vim rdma-core make ibverbs-utils build-essential g++ gfortran \
+    libblas-dev liblapack-dev libopenmpi-dev libscalapack-mpi-dev libfftw3-dev
 
 # OneAPI runtime MKL
 cd /tmp

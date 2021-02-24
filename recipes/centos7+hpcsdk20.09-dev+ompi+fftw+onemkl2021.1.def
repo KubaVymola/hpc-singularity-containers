@@ -1,0 +1,30 @@
+Bootstrap: docker
+From: docker pull nvcr.io/nvidia/nvhpc:20.9-devel-centos7
+
+%files
+/home/jakub/It4i/software/intel/fftw    /opt/intel/oneapi/include/fftw
+
+
+%post
+yum --assumeyes --quiet update
+yum --assumeyes --quiet groupinstall "Development Tools"
+yum --assumeyes --quiet install epel-release 
+yum --assumeyes --quiet install gcc-gfortran gcc-g++ lapack-devel fftw-devel openmpi3-devel wget rsync numactl-devel vim rdma-core-devel which \
+    ca-certificates libibverbs libibverbs-devel libibverbs-devel-static libibverbs-utils
+
+
+# OneAPI runtime MKL (with FFTW include this is enough to build VASP - saves ~8GB)
+tee > /tmp/oneAPI.repo << EOF
+[oneAPI]
+name=Intel(R) oneAPI repository
+baseurl=https://yum.repos.intel.com/oneapi
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+EOF
+
+mv /tmp/oneAPI.repo /etc/yum.repos.d
+
+yum --assumeyes --quiet update
+yum --assumeyes --quiet install intel-oneapi-runtime-mkl.x86_64

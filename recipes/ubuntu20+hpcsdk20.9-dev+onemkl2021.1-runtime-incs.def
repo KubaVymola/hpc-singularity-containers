@@ -5,10 +5,7 @@ From: nvcr.io/nvidia/nvhpc:20.9-devel-ubuntu20.04
 export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/compilers/extras/qd/lib:/opt/intel/oneapi/lib/intel64:$LD_LIBRARY_PATH
 export MKLROOT=/opt/intel/oneapi
 export PATH=/opt/bin:/opt/application:/opt/application/bin:$PATH
-
-# %files
-# /home/jakub/It4i/software/vasp/vasp-6.1.1/vasp.6.1.1.tgz                            /opt/vasp.6.1.1.tgz   
-# /home/jakub/It4i/software/vasp/vasp-6.1.1/makefile.include.linux_nv_acc+omp+mkl     /opt/makefile.include
+export OPAL_PKGDATADIR=/opt/nvidia/hpc_sdk/Linux_x86_64/20.9/comm_libs/openmpi/openmpi-3.1.5/share/openmpi
 
 %files
 /home/jakub/It4i/software/intel/fftw    /opt/intel/oneapi/include/fftw
@@ -16,7 +13,8 @@ export PATH=/opt/bin:/opt/application:/opt/application/bin:$PATH
 
 %post
 apt -y update && apt -y upgrade
-apt -y install rsync gnupg ca-certificates libmlx5-1
+apt -y install rsync gnupg ca-certificates wget libmlx5-1 libdapl2 vim rdma-core ibverbs-utils make build-essential g++ gfortran \
+    libblas-dev liblapack-dev libopenmpi-dev libscalapack-mpi-dev libfftw3-dev
 
 # OneAPI MKL
 # cd /tmp
