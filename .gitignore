@@ -2,3 +2,5 @@
 obsolete/
 tmp/
 sandboxes/
+images/
+.vscode/
